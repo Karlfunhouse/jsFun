@@ -817,11 +817,34 @@ const bossPrompts = {
     //   { bossName: 'Scar', sidekickLoyalty: 16 }
     // ]
 
-    const result =  ''
+    let bossKeys = Object.keys(bosses)
+
+    const result =
+      bossKeys.reduce((acc, boss) => {
+        let loyalty = 0;
+        bosses[boss].sidekicks.forEach(sidekick => {
+          sidekicks.forEach(minion => {
+            if(minion.name === sidekick.name) {
+              loyalty += minion.loyaltyToBoss
+            }
+          })
+        })
+          acc.push({
+            'bossName' : bosses[boss].name,
+            'sidekickLoyalty' : loyalty
+            })
+            return acc
+      }, [])
+
 
     return result;
 
     // Annotation:
+    // bossName as key: 'bosses Name', sidekickLoyalty
+    //iterate through boss.sidekicks
+    //iterate through sidekicks array to find their loyaltyToBoss number
+    //if sidekick.name === boss.sidekick.name
+    //add loyaltyToBoss to the key
     // Write your annotation here as a comment
   }
 };
@@ -924,11 +947,20 @@ const astronomyPrompts = {
     //    "Orion",
     //    "The Little Dipper" ]
 
+    let sortedStars = stars.sort((a, b) => a.visualMagnitude - b.visualMagnitude)
 
-    const result = 'REPLACE WITH YOUR RESULT HERE';
+    const result =
+      sortedStars.reduce((constellations, star) => {
+        if(star.constellation) {
+          constellations.push(star.constellation)
+        }
+        return constellations
+      }, [])
     return result;
 
     // Annotation:
+    //sort stars by visualMagnitude
+    //if star.constealltion push star.constellation into our array
     // Write your annotation here as a comment
   }
 };
@@ -956,7 +988,14 @@ const ultimaPrompts = {
     // Return the sum of the amount of damage for all the weapons that our characters can use
     // Answer => 113
 
-    const result = 'REPLACE WITH YOUR RESULT HERE';
+    const result =
+
+      characters.reduce((totalDamage, el) => {
+        el.weapons.forEach(weapon => {
+          totalDamage += weapons[weapon].damage
+        })
+        return totalDamage
+      }, 0)
     return result;
 
     // Annotation:
@@ -968,7 +1007,22 @@ const ultimaPrompts = {
     // Return the sum damage and total range for each character as an object.
     // ex: [ { Avatar: { damage: 27, range: 24 }, { Iolo: {...}, ...}
 
-    const result = 'REPLACE WITH YOUR RESULT HERE';
+    const result =
+      characters.map(character => {
+        let damage = 0;
+        let range = 0;
+        character.weapons.forEach(weapon => {
+          damage += weapons[weapon].damage;
+          range += weapons[weapon].range;
+        })
+        return {
+          [character.name] : {
+            damage: damage,
+            range: range
+          }
+        }
+      })
+
     return result;
 
     // Annotation:
@@ -976,20 +1030,11 @@ const ultimaPrompts = {
   },
 };
 
-
-
-
-
-
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
-
-
-
-
 
 
 // DATASET: dinosaurs, humans, movies from ./datasets/dinosaurs
@@ -1005,10 +1050,18 @@ const dinosaurPrompts = {
     //   'Jurassic World: Fallen Kingdom': 18
     // }
 
-    const result = 'REPLACE WITH YOUR RESULT HERE';
+
+    const result =
+      movies.reduce((movies, movie) => {
+        let movieDinos = movie.dinos.filter(dino => dinosaurs[dino].isAwesome)
+        movies[movie.title] = movieDinos.length
+        return movies
+      }, {})
     return result;
 
     // Annotation:
+    //get in an object of object
+    //return an object where the keys are the the movie title & value is # of awesome dinosaurs.
     // Write your annotation here as a comment
   },
 
@@ -1038,10 +1091,24 @@ const dinosaurPrompts = {
       }
     */
 
-    const result = 'REPLACE WITH YOUR RESULT HERE';
+    const result =
+      movies.reduce((acc, movie) => {
+        let age = movie.cast.reduce((avgAge, actorKey) => {
+          avgAge += (movie.yearReleased - humans[actorKey].yearBorn)
+          return avgAge
+        }, 0)
+        if(!acc[movie.director]) {
+          acc[movie.director] = {}
+        }
+          acc[movie.director][movie.title] = Math.floor(age / movie.cast.length)
+        return acc
+      }, {})
+
     return result;
 
     // Annotation:
+    //iterate through the movies and create an object with the key of movie.director and the value which is an object with the key of movie.title and value as average age of the cast.
+    //find average age of cast by subtracting yearReleased - yearBorn & adding all those values and divididing by length of array.  (map)
     // Write your annotation here as a comment
   },
 
